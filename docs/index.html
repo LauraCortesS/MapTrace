@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestionar Versiones | MapTrace – Documentación</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── Tipografía base ── */
+    body {
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #1c1c1c;
+      background: #fff;
+    }
+
+    a { color: #0079c1; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Aviso de no-oficial (franja superior muy discreta) ── */
+    .disclaimer-bar {
+      background: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: center;
+      padding: 4px 1rem;
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    /* ── Barra de navegación superior ── */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #2b2b2b;
+      color: #fff;
+      border-bottom: 1px solid #444;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+    }
+
+    .top-nav-brand {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .top-nav-sep { color: #777; margin: 0 0.25rem; }
+
+    .top-nav-context {
+      font-size: 0.88rem;
+      color: #bbb;
+      white-space: nowrap;
+    }
+
+    .top-nav-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      color: #ddd;
+      white-space: nowrap;
+    }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb-bar {
+      background: #fafafa;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 0 1.5rem;
+      height: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: #666;
+      list-style: none;
+    }
+
+    .breadcrumb li::before { content: ""; }
+    .breadcrumb .sep { color: #bbb; }
+
+    /* ── Layout de tres columnas ── */
+    .page-wrapper {
+      display: flex;
+      max-width: 1140px;
+      margin: 0 auto;
+      min-height: calc(100vh - 80px);
+    }
+
+    /* ── TOC lateral izquierdo ── */
+    .sidebar-toc {
+      width: 230px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 48px;
+      height: calc(100vh - 48px);
+      overflow-y: auto;
+      border-right: 1px solid #e8e8e8;
+      padding: 1.5rem 0;
+      background: #fafafa;
+    }
+
+    .sidebar-toc-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #888;
+      font-weight: 700;
+      padding: 0 1.25rem 0.6rem;
+    }
+
+    .sidebar-toc ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar-toc li { margin: 0; }
+
+    /* Etiqueta de grupo (no es enlace) */
+    .sidebar-toc .toc-group {
+      display: block;
+      padding: 6px 1.25rem 3px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      cursor: default;
+    }
+
+    /* Enlace de página (nivel superior dentro del grupo) */
+    .sidebar-toc .toc-page-link {
+      display: block;
+      padding: 5px 1.25rem 5px 1.6rem;
+      font-size: 0.83rem;
+      color: #444;
+      border-left: 3px solid transparent;
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .sidebar-toc .toc-page-link:hover {
+      background: #eef5fc;
+      color: #0079c1;
+      border-left-color: #b8d8f2;
+      text-decoration: none;
+    }
+
+    /* Página activa (la que se está viendo) */
+    .sidebar-toc .toc-page-link.current-page {
+      color: #0079c1;
+      font-weight: 600;
+      border-left-color: #0079c1;
+      background: #eef5fc;
+    }
+
+    /* Anclas dentro de la página actual */
+    .sidebar-toc a.anchor-link {
+      display: block;
+      padding: 4px 1.25rem 4px 2.5rem;
+      font-size: 0.79rem;
+      color: #666;
+      border-left: 3px solid transparent;
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .sidebar-toc a.anchor-link:hover,
+    .sidebar-toc a.anchor-link.active {
+      background: #eef5fc;
+      color: #0079c1;
+      border-left-color: #0079c1;
+      text-decoration: none;
+    }
+
+    .sidebar-toc .toc-sub a {
+      padding-left: 2.1rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    /* ── Contenido principal ── */
+    .main-content {
+      flex: 1;
+      min-width: 0;
+      padding: 2rem 2.5rem 4rem;
+    }
+
+    /* ── Affix "En este tema" (derecha) ── */
+    .affix-toc {
+      width: 200px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 64px;
+      height: fit-content;
+      padding: 1.5rem 1rem 1.5rem 0.5rem;
+      display: none;
+    }
+
+    @media (min-width: 1050px) { .affix-toc { display: block; } }
+
+    .affix-toc-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #888;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .affix-toc ul { list-style: none; padding: 0; margin: 0; }
+
+    .affix-toc li { margin: 0; }
+
+    .affix-toc a {
+      display: block;
+      padding: 3px 0 3px 0.75rem;
+      font-size: 0.78rem;
+      color: #666;
+      border-left: 2px solid #e0e0e0;
+    }
+
+    .affix-toc a:hover { color: #0079c1; text-decoration: none; border-left-color: #0079c1; }
+
+    /* ── Sidebar responsive ── */
+    @media (max-width: 720px) {
+      .sidebar-toc { display: none; }
+      .main-content { padding: 1.5rem 1rem 3rem; }
+    }
+
+    /* ── Encabezado de página ── */
+    .page-header { margin-bottom: 1.75rem; }
+
+    .page-header h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #1c1c1c;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      font-size: 0.8rem;
+      color: #888;
+      align-items: center;
+    }
+
+    .version-chip {
+      background: #eef5fc;
+      border: 1px solid #b8d8f2;
+      border-radius: 20px;
+      padding: 1px 9px;
+      color: #0079c1;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    hr.page-header-rule {
+      border: none;
+      border-top: 1px solid #e8e8e8;
+      margin-top: 1rem;
+    }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1c1c1c;
+      margin-top: 2.25rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1c1c1c;
+      margin-top: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    h4 {
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: #333;
+      margin-top: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    p { margin-bottom: 0.9rem; }
+
+    section { margin-bottom: 0.5rem; }
+
+    /* ── Listas ── */
+    ul, ol { margin: 0.4rem 0 0.9rem 1.5rem; }
+    li { margin-bottom: 0.35rem; }
+
+    /* ── Cajas de nota / advertencia (estilo Esri) ── */
+    .alert {
+      border-radius: 2px;
+      padding: 0.7rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+    }
+
+    .alert-note {
+      background: #eef5fc;
+      border-left: 3px solid #0079c1;
+    }
+
+    .alert-caution {
+      background: #fff8e1;
+      border-left: 3px solid #f9a825;
+    }
+
+    .alert-warning {
+      background: #fdf0ec;
+      border-left: 3px solid #c62828;
+    }
+
+    .note-header {
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .alert-note .note-header   { color: #0079c1; }
+    .alert-caution .note-header { color: #c17900; }
+    .alert-warning .note-header { color: #c62828; }
+
+    .alert p:last-child { margin-bottom: 0; }
+
+    /* ── Tablas ── */
+    .table-responsive { overflow-x: auto; margin: 0.75rem 0 1.25rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    th {
+      background: #f2f2f2;
+      border: 1px solid #d8d8d8;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #1c1c1c;
+    }
+
+    td {
+      border: 1px solid #d8d8d8;
+      padding: 9px 12px;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td { background: #fafafa; }
+
+    /* ── Código ── */
+    code {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.86em;
+      background: #f0f4f8;
+      border: 1px solid #d5e0ea;
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: #1a3a52;
+    }
+
+    /* ── Pasos numerados ── */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding-left: 0;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 0.8rem;
+      align-items: flex-start;
+      margin-bottom: 0.55rem;
+      font-size: 0.92rem;
+    }
+
+    .steps li::before {
+      content: counter(step);
+      min-width: 22px;
+      height: 22px;
+      background: #0079c1;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* ── Placeholder de captura ── */
+    .screenshot-placeholder {
+      border: 2px dashed #b8d0e8;
+      background: #f4f8fc;
+      border-radius: 3px;
+      padding: 3rem 2rem;
+      text-align: center;
+      color: #6b8fa8;
+      font-size: 0.88rem;
+      margin: 0.75rem 0 0.3rem;
+    }
+
+    .screenshot-placeholder .icon { font-size: 1.75rem; margin-bottom: 0.4rem; }
+
+    .screenshot-caption {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #888;
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Demo del ComboBox ── */
+    .combo-demo {
+      border: 1px solid #d8d8d8;
+      border-radius: 3px;
+      background: #fff;
+      font-size: 0.85rem;
+      margin: 0.75rem 0;
+      max-width: 340px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+
+    .combo-demo .cd-item { padding: 5px 12px; }
+    .combo-demo .cd-sep {
+      border-top: 1px solid #d0d0d0;
+      padding: 4px 12px 2px;
+      font-size: 0.73rem;
+      color: #999;
+    }
+    .combo-demo .cd-orphan { color: #999; font-style: italic; }
+    .combo-demo .cd-warn   { color: #999; font-style: italic; }
+
+    /* ── Ícono de botón en tabla ── */
+    .btn-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .btn-icon img {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid #e0e0e0;
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #999;
+      background: #fafafa;
+    }
+
+    footer p + p { margin-top: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Aviso de no-oficial ── -->
+<div class="disclaimer-bar">
+  Documentación académica no oficial · MapTrace es un Add-In de terceros desarrollado como trabajo de grado en la Universidad Distrital Francisco José de Caldas · No afiliado a Esri
+</div>
+
+<!-- ── Barra de navegación superior ── -->
+<nav class="top-nav" aria-label="Navegación principal">
+  <span class="top-nav-brand">MapTrace</span>
+  <span class="top-nav-sep">|</span>
+  <span class="top-nav-context">Documentación</span>
+  <span class="top-nav-badge">v1.0 · ArcGIS Pro 3.6+</span>
+</nav>
+
+<!-- ── Breadcrumb ── -->
+<div class="breadcrumb-bar">
+  <ol class="breadcrumb" aria-label="Ruta de navegación">
+    <li><a href="index.html">MapTrace</a></li>
+    <li class="sep">›</li>
+    <li><a href="index.html">Gestionar Versiones</a></li>
+    <li class="sep">›</li>
+    <li>Gestor de Versiones</li>
+  </ol>
+</div>
+
+<!-- ── Cuerpo de tres columnas ── -->
+<div class="page-wrapper">
+
+  <!-- ── TOC lateral ── -->
+  <aside class="sidebar-toc" aria-label="Navegación lateral">
+    <div class="sidebar-toc-title">MapTrace</div>
+    <ul>
+      <!-- ── Grupo: Gestionar Versiones ── -->
+      <li><span class="toc-group">Gestionar Versiones</span></li>
+
+      <!-- Página 1: Gestor de Versiones (activa) -->
+      <li>
+        <a href="index.html" class="toc-page-link current-page">Gestor de Versiones</a>
+        <ul>
+          <li><a href="#resumen"      class="anchor-link">Resumen</a></li>
+          <li><a href="#requisitos"   class="anchor-link">Requisitos</a></li>
+          <li><a href="#ilustracion"  class="anchor-link">Vista del panel</a></li>
+          <li><a href="#abrir-panel"  class="anchor-link">Cómo abrir el panel</a></li>
+          <li><a href="#elementos"    class="anchor-link">Elementos del panel</a></li>
+          <li><a href="#flujo"        class="anchor-link">Flujo de trabajo</a></li>
+          <li><a href="#huerfanas"    class="anchor-link">Capas huérfanas</a></li>
+          <li><a href="#almacenamiento" class="anchor-link">Almacenamiento</a></li>
+          <li><a href="#limitaciones" class="anchor-link">Limitaciones</a></li>
+        </ul>
+      </li>
+
+      <!-- Página 2: Crear Versión (enlace a otra página) -->
+      <li>
+        <a href="crear-version.html" class="toc-page-link">Crear Versión</a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- ── Contenido principal ── -->
+  <main class="main-content" id="main">
+
+    <div class="page-header">
+      <h1>Gestionar Versiones</h1>
+      <div class="page-meta">
+        <span class="version-chip">ArcGIS Pro 3.6+</span>
+        <span>Universidad Distrital Francisco José de Caldas</span>
+        <span>MapTrace v1.0</span>
+      </div>
+      <hr class="page-header-rule">
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 1. RESUMEN                                 -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="resumen">
+      <h2>Resumen</h2>
+
+      <p>
+        <strong>MapTrace</strong> es un Add-In para ArcGIS Pro 3.6 que proporciona un mecanismo de control de
+        versiones local para capas vectoriales (<em>FeatureLayer</em>) y raster (<em>RasterLayer</em>) almacenadas
+        en geodatabases de archivos (FileGDB). La herramienta permite crear instantáneas incrementales de los datos
+        — denominadas <em>versiones</em> — identificadas con un número secuencial (V1, V2, V3…), una fecha y hora,
+        y una nota de observación libre redactada por el usuario. Cada versión es una copia completa e independiente
+        del conjunto de datos en el momento en que se capturó.
+      </p>
+
+      <p>
+        El problema que MapTrace resuelve es la ausencia de un control de cambios nativo para geodatabases locales
+        en ArcGIS Pro: sin esta herramienta, cualquier modificación sobre un dataset es irreversible a menos que el
+        usuario haya realizado manualmente copias de respaldo con nombres y fechas ad hoc. MapTrace automatiza ese
+        proceso, organiza las copias en una geodatabase auxiliar de instantáneas y permite restaurar cualquier
+        versión anterior con un solo clic.
+      </p>
+
+      <p>
+        Utilice MapTrace cuando trabaje con ediciones iterativas de capas geográficas en FileGDB y necesite mantener
+        un historial trazable de los cambios: digitalización de cartografía, ajuste de geometrías, actualización de
+        atributos, o cualquier flujo de trabajo donde sea importante poder revertir el estado de la capa a un punto
+        anterior bien documentado.
+      </p>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 2. REQUISITOS                              -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="requisitos">
+      <h2>Requisitos</h2>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr><th>Requisito</th><th>Detalle</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ArcGIS Pro 3.6 o superior</td>
+              <td>El Add-In fue compilado con el SDK de ArcGIS Pro 3.6. No se garantiza compatibilidad con versiones anteriores.</td>
+            </tr>
+            <tr>
+              <td>Tipo de capa compatible</td>
+              <td>FeatureLayer (capa vectorial) o RasterLayer cuyo origen sea una FileGDB local o en ruta de red.</td>
+            </tr>
+            <tr>
+              <td>Capa cargada en el mapa</td>
+              <td>Para crear la primera versión, la capa debe estar cargada en la tabla de contenidos (TOC) del proyecto activo de ArcGIS Pro.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert alert-note">
+        <div class="note-header">Nota</div>
+        <p>Las geodatabases corporativas (SDE / Enterprise Geodatabase), servicios de entidades (Feature Services),
+        capas de Living Atlas, WFS, WMS y capas de red <em>no</em> son compatibles con MapTrace. La herramienta
+        opera exclusivamente sobre archivos FileGDB.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 3. VISTA DEL PANEL                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="ilustracion">
+      <h2>Vista del panel</h2>
+
+      <img src="images/panel-gestor-versiones.png.jpg"
+           alt="Panel Gestor de Versiones de MapTrace"
+           style="max-width:100%;border:1px solid #d8d8d8;border-radius:3px;display:block;">
+      <p class="screenshot-caption">El panel <strong>Gestor de Versiones</strong> se abre desde la pestaña <strong>MapTrace</strong> en la cinta de ArcGIS Pro.</p>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 4. CÓMO ABRIR EL PANEL                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="abrir-panel">
+      <h2>Cómo abrir el panel</h2>
+
+      <p>
+        Una vez instalado el Add-In, ArcGIS Pro añade automáticamente la pestaña <strong>MapTrace</strong> a la cinta
+        principal. Esta pestaña contiene dos controles:
+      </p>
+
+      <ul>
+        <li><strong>Gestionar Versiones</strong> — abre el panel flotante <em>Gestor de Versiones</em>, que
+          centraliza todas las operaciones de creación, visualización, restauración y eliminación de versiones.</li>
+        <li><strong>Crear Versión</strong> — acceso directo para capturar una instantánea rápida de la capa
+          seleccionada en la tabla de contenidos, sin necesidad de abrir el panel completo.</li>
+      </ul>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 5. ELEMENTOS DEL PANEL                    -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="elementos">
+      <h2>Elementos del panel</h2>
+
+      <p>El panel <em>Gestor de Versiones</em> agrupa todos los controles necesarios para administrar el historial
+      de versiones de una capa. A continuación se describe cada elemento.</p>
+
+      <h3 id="elem-combobox">ComboBox "Capa de entrada"</h3>
+      <p>
+        Lista desplegable ubicada en la parte superior del panel. Muestra todas las capas válidas del proyecto activo
+        cuyo origen sea una FileGDB: FeatureLayers y RasterLayers. Las capas de servicios o bases de datos
+        corporativas se excluyen automáticamente.
+      </p>
+      <p>
+        Adicionalmente, el ComboBox incluye las <strong>capas huérfanas</strong>: capas que tienen versiones guardadas
+        en una geodatabase de instantáneas pero que ya no están cargadas en el proyecto activo. Estas capas aparecen
+        debajo de un separador visual, en texto <em>gris e itálico</em>. Si la geodatabase de origen de una capa
+        huérfana ya no existe en disco, aparece el icono ⚠ junto al nombre.
+      </p>
+
+      <div class="combo-demo" aria-label="Ejemplo ilustrativo del ComboBox">
+        <div class="cd-item">Lote</div>
+        <div class="cd-item">Clasificación</div>
+        <div class="cd-sep">-Capas huérfanas-</div>
+        <div class="cd-item cd-orphan">Departamentos</div>
+        <div class="cd-item cd-warn">⚠ Chía</div>
+      </div>
+      <p style="font-size:0.78rem;color:#888;font-style:italic;margin-top:-0.4rem;">
+        Ejemplo ilustrativo. Las capas en gris e itálico son huérfanas.
+      </p>
+
+      <h3 id="elem-botones">Botones de acción</h3>
+      <p>
+        Los cuatro botones de acción se encuentran agrupados en una barra de iconos ubicada debajo del ComboBox.
+        Todos los botones se deshabilitan automáticamente cuando no existe una selección válida o cuando hay
+        una operación en curso.
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr><th>Botón</th><th>Función</th><th>Condiciones de habilitación</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span class="btn-icon">
+                  <img src="images/CrearVersion16.png" alt="">
+                  <strong>Crear Versión</strong>
+                </span>
+              </td>
+              <td>Crea una nueva instantánea de la capa seleccionada en el ComboBox. Solicita una nota de observación antes de proceder.</td>
+              <td>Capa activa en el TOC, sin fuente de datos rota, sin operación en curso.</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="btn-icon">
+                  <img src="images/viewmixed16.png" alt="">
+                  <strong>Ver Versión</strong>
+                </span>
+              </td>
+              <td>Carga una copia de solo lectura de la versión seleccionada en una geodatabase temporal. La capa de vista se agrega al mapa con el prefijo <code>[VISTA]</code> y conserva la simbología de la capa original.</td>
+              <td>Versión seleccionada en el historial, sin operación en curso.</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="btn-icon">
+                  <img src="images/reset16.png" alt="">
+                  <strong>Restaurar Versión</strong>
+                </span>
+              </td>
+              <td>Restaura el estado de los datos al correspondiente a la versión seleccionada. Pregunta si se desea guardar el estado actual antes de proceder. Si el esquema difiere, muestra un aviso detallado.</td>
+              <td>Versión seleccionada en el historial, sin operación en curso.</td>
+            </tr>
+            <tr>
+              <td>
+                <span class="btn-icon">
+                  <img src="images/deleteheading16.png" alt="">
+                  <strong>Eliminar Versión</strong>
+                </span>
+              </td>
+              <td>Elimina la versión o versiones seleccionadas del historial y de la geodatabase de instantáneas. Solicita confirmación. La acción es irreversible.</td>
+              <td>Una o más versiones seleccionadas, sin operación en curso.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="elem-historial">Historial de Versiones</h3>
+      <p>
+        Tabla que muestra todas las versiones guardadas para la capa seleccionada. Contiene tres columnas:
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr><th>Columna</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Versión</strong></td><td>Identificador secuencial de la instantánea (V1, V2, V3…).</td></tr>
+            <tr><td><strong>Fecha</strong></td><td>Fecha y hora de creación en formato <code>dd/MM/yyyy HH:mm</code>. Ordena cronológicamente al hacer clic en la columna.</td></tr>
+            <tr><td><strong>Observaciones</strong></td><td>Nota libre introducida por el usuario al crear la versión.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Haga clic en una fila para seleccionarla. Use <kbd>Ctrl</kbd>+clic o <kbd>Shift</kbd>+clic para seleccionar
+        múltiples filas (habilitado únicamente para la operación de eliminación).
+      </p>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 6. FLUJO DE TRABAJO                       -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="flujo">
+      <h2>Flujo de trabajo</h2>
+
+      <h3 id="flujo-crear">Crear una versión</h3>
+      <ol class="steps">
+        <li>Abra el panel <em>Gestor de Versiones</em> desde la pestaña <strong>MapTrace</strong> en la cinta.</li>
+        <li>En el ComboBox <em>Capa de entrada</em>, seleccione la capa de la que desea guardar una instantánea.</li>
+        <li>Haga clic en el botón <strong>Crear Versión</strong> (ícono de la barra de acciones).</li>
+        <li>En el diálogo, escriba una observación descriptiva del estado actual. La observación puede dejarse en blanco, aunque se recomienda documentar cada versión.</li>
+        <li>Haga clic en <strong>Aceptar</strong>. La barra de progreso indica el avance de la operación.</li>
+        <li>Al finalizar, la nueva versión aparece en el historial con su número, fecha y observación.</li>
+      </ol>
+
+      <div class="alert alert-note">
+        <div class="note-header">Consejo</div>
+        <p>Cree una versión antes de iniciar cualquier sesión de edición significativa. De este modo siempre
+        dispondrá de un punto de retorno limpio al que regresar si los cambios no resultan satisfactorios.</p>
+      </div>
+
+      <h3 id="flujo-ver">Ver una versión</h3>
+      <ol class="steps">
+        <li>En el historial, seleccione la versión que desea examinar.</li>
+        <li>Haga clic en el botón <strong>Ver Versión</strong>.</li>
+        <li>MapTrace copia la instantánea a una geodatabase temporal y la agrega al mapa activo con el prefijo <code>[VISTA]</code>. La capa conserva la simbología de la capa original.</li>
+        <li>Examine los datos en el mapa. La capa de vista es de <strong>solo lectura</strong>: cualquier edición realizada sobre ella no afecta las instantáneas guardadas ni la capa operacional.</li>
+        <li>Para cerrar la vista, elimine la capa <code>[VISTA]</code> de la tabla de contenidos como haría con cualquier capa de ArcGIS Pro.</li>
+      </ol>
+
+      <div class="alert alert-note">
+        <div class="note-header">Nota</div>
+        <p>Si abre una nueva vista mientras otra ya está activa, la primera se cierra automáticamente. Solo puede
+        haber una capa de vista activa por sesión.</p>
+      </div>
+
+      <h3 id="flujo-restaurar">Restaurar una versión</h3>
+      <ol class="steps">
+        <li>En el ComboBox, seleccione la capa que desea restaurar.</li>
+        <li>En el historial, haga clic en la versión a la que desea volver.</li>
+        <li>Haga clic en el botón <strong>Restaurar Versión</strong>.</li>
+        <li>El sistema pregunta si desea guardar el estado actual antes de restaurar. Elija <em>Sí</em> para crear una versión de respaldo automática, <em>No</em> para proceder sin guardar, o <em>Cancelar</em> para abortar.</li>
+        <li>Si el esquema de la versión difiere del esquema actual (campos distintos), aparece un aviso detallando los campos que se añadirán o eliminarán. Confirme para continuar.</li>
+        <li>La barra de progreso indica el avance. Al terminar, la capa en el mapa refleja el estado de la versión restaurada.</li>
+      </ol>
+
+      <div class="alert alert-warning">
+        <div class="note-header">Advertencia</div>
+        <p>La restauración sobreescribe los datos actuales de la capa. Si elige <em>No</em> al preguntarse si desea
+        guardar el estado actual, los cambios no guardados se perderán de forma permanente. No existe función de
+        deshacer para esta operación.</p>
+      </div>
+
+      <h3 id="flujo-eliminar">Eliminar una versión</h3>
+      <ol class="steps">
+        <li>En el historial, seleccione la versión o versiones a eliminar. Para seleccionar varias, use <kbd>Ctrl</kbd>+clic o <kbd>Shift</kbd>+clic.</li>
+        <li>Haga clic en el botón <strong>Eliminar Versión</strong>.</li>
+        <li>Confirme la eliminación en el diálogo.</li>
+        <li>Las versiones seleccionadas se eliminan de la geodatabase de instantáneas y del historial. La operación no puede deshacerse.</li>
+      </ol>
+
+      <div class="alert alert-warning">
+        <div class="note-header">Advertencia</div>
+        <p>La eliminación de versiones es <strong>irreversible</strong>. Asegúrese de no necesitar esas versiones
+        antes de confirmar.</p>
+      </div>
+
+      <div class="alert alert-note">
+        <div class="note-header">Consejo</div>
+        <p>Para liberar espacio en disco de forma controlada, elimine únicamente las versiones intermedias o de
+        prueba más antiguas, y conserve siempre las versiones correspondientes a hitos importantes del proyecto.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 7. CAPAS HUÉRFANAS                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="huerfanas">
+      <h2>Capas huérfanas</h2>
+
+      <p>
+        Una <strong>capa huérfana</strong> es una capa que tiene versiones guardadas en una geodatabase de
+        instantáneas (<code>Snapshots_*.gdb</code>), pero que ya no está cargada en la tabla de contenidos del
+        proyecto activo. Esto puede ocurrir si la capa fue eliminada del proyecto, si el proyecto fue compartido
+        sin incluir esa capa, o si se cambió el nombre o la ruta de la capa original.
+      </p>
+
+      <p>MapTrace detecta automáticamente las capas huérfanas y las incluye en el ComboBox debajo de un separador,
+      en texto gris e itálico. Si la geodatabase de origen ya no existe en disco, el nombre muestra el icono ⚠.
+      MapTrace maneja tres escenarios al restaurar una versión huérfana:</p>
+
+      <h3>Escenario A – La GDB existe pero el dataset fue eliminado</h3>
+      <p>
+        La geodatabase de origen sigue presente, pero el dataset fue eliminado. MapTrace restaura directamente la
+        versión y añade la capa resultante al mapa activo automáticamente.
+      </p>
+
+      <h3>Escenario B – La GDB y el dataset existen</h3>
+      <p>
+        Tanto la GDB como el dataset siguen presentes. MapTrace pregunta si se desea guardar el estado actual como
+        versión antes de proceder. Luego sobreescribe los datos y deja la capa en el mapa.
+      </p>
+
+      <h3>Escenario C – La GDB de origen ya no existe</h3>
+      <p>
+        La GDB fue eliminada o movida (indicado por ⚠). MapTrace pregunta al usuario si desea recrearla en la ruta
+        original. Si confirma, recrea la GDB y procede como en el Escenario A.
+      </p>
+
+      <div class="alert alert-note">
+        <div class="note-header">Nota</div>
+        <p>Si la capa pertenecía originalmente a un Feature Dataset dentro de la GDB, MapTrace respeta esa
+        estructura y realiza la restauración dentro del mismo Feature Dataset.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 8. ALMACENAMIENTO                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="almacenamiento">
+      <h2>Almacenamiento de versiones</h2>
+
+      <h3>Geodatabase de snapshots</h3>
+      <p>
+        Cada GDB de origen tiene asociada una <strong>geodatabase de snapshots</strong>, creada automáticamente
+        en la misma carpeta con la convención:
+      </p>
+      <p style="text-align:center;margin:0.75rem 0 1rem;">
+        <code>Snapshots_[NombreGDB].gdb</code>
+      </p>
+      <p>
+        Por ejemplo, si la GDB de origen se llama <code>CartografiaUrbana.gdb</code>, la geodatabase de snapshots
+        se denominará <code>Snapshots_CartografiaUrbana.gdb</code>. No es necesario crearla manualmente.
+      </p>
+
+      <h3>Tabla de metadatos</h3>
+      <p>
+        Dentro de la geodatabase de snapshots, MapTrace mantiene una tabla interna llamada
+        <code>_MapTrace_Metadata</code> con los siguientes campos por cada versión:
+      </p>
+      <ul>
+        <li>Número de versión (V1, V2…)</li>
+        <li>Nombre del FeatureClass o dataset raster</li>
+        <li>Fecha y hora de creación</li>
+        <li>Observación introducida por el usuario</li>
+        <li>Nombre del Feature Dataset contenedor (si aplica)</li>
+      </ul>
+
+      <div class="alert alert-caution">
+        <div class="note-header">Precaución</div>
+        <p>No modifique la tabla <code>_MapTrace_Metadata</code> manualmente. Cualquier alteración directa puede
+        causar inconsistencias entre el historial mostrado en el panel y las instantáneas almacenadas en la GDB.</p>
+      </div>
+
+      <h3>Consideraciones de espacio en disco</h3>
+      <p>
+        Cada versión es una <strong>copia completa</strong> del dataset en el momento de la captura; no se utiliza
+        ningún mecanismo diferencial. El espacio consumido crece de forma proporcional al tamaño del dataset por
+        cada versión creada. Para datasets grandes, el número de versiones debe gestionarse con prudencia.
+      </p>
+
+      <div class="alert alert-note">
+        <div class="note-header">Consejo</div>
+        <p>Elimine periódicamente las versiones intermedias o de prueba para liberar espacio, conservando únicamente
+        las versiones correspondientes a hitos significativos del proyecto.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- 9. LIMITACIONES                           -->
+    <!-- ══════════════════════════════════════════ -->
+    <section id="limitaciones">
+      <h2>Limitaciones</h2>
+
+      <ul>
+        <li><strong>Solo FileGDB:</strong> MapTrace opera exclusivamente sobre geodatabases de archivos (FileGDB), ya sean locales o en ruta de red. Las geodatabases corporativas (SDE / Enterprise Geodatabase), servicios de entidades, capas de Living Atlas y capas web no son compatibles.</li>
+        <li><strong>Capa cargada en el proyecto:</strong> Para crear la primera versión de una capa, esta debe estar cargada en la tabla de contenidos. Las capas huérfanas solo pueden restaurarse, no generar versiones nuevas desde el panel.</li>
+        <li><strong>Sin cancelación de operación en curso:</strong> Una vez iniciada una operación, no existe botón de interrupción. Espere a que la barra de progreso desaparezca antes de continuar.</li>
+        <li><strong>Sin función de deshacer:</strong> Ni la eliminación de versiones ni la restauración pueden deshacerse mediante Ctrl+Z de ArcGIS Pro.</li>
+        <li><strong>Sin gestión de ramas ni resolución de conflictos:</strong> MapTrace no implementa versionado con ramas. Cada versión es una línea temporal única y secuencial.</li>
+        <li><strong>Copias completas:</strong> Cada versión ocupa el mismo espacio que el dataset completo. Para datasets de gran tamaño, gestione el número de versiones cuidadosamente.</li>
+        <li><strong>Capas en edición activa:</strong> Si la capa tiene una sesión de edición abierta en el momento del rollback, la operación puede fallar por conflicto de acceso al archivo. Guarde y cierre la sesión de edición antes de restaurar.</li>
+        <li><strong>Sin cifrado ni control de acceso:</strong> La geodatabase de snapshots es una FileGDB estándar sin mecanismos de cifrado. Cualquier usuario con acceso a la carpeta puede leer las snapshots directamente.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- ── "En este tema" (affix derecho) ── -->
+  <aside class="affix-toc" aria-label="En este tema">
+    <div class="affix-toc-title">En este tema</div>
+    <ul>
+      <li><a href="#resumen">Resumen</a></li>
+      <li><a href="#requisitos">Requisitos</a></li>
+      <li><a href="#ilustracion">Vista del panel</a></li>
+      <li><a href="#abrir-panel">Cómo abrir</a></li>
+      <li><a href="#elementos">Elementos del panel</a></li>
+      <li><a href="#flujo">Flujo de trabajo</a></li>
+      <li><a href="#huerfanas">Capas huérfanas</a></li>
+      <li><a href="#almacenamiento">Almacenamiento</a></li>
+      <li><a href="#limitaciones">Limitaciones</a></li>
+    </ul>
+  </aside>
+
+</div><!-- /page-wrapper -->
+
+<!-- ── Footer ── -->
+<footer>
+  <p>MapTrace v1.0 &nbsp;·&nbsp; Universidad Distrital Francisco José de Caldas &nbsp;·&nbsp; ArcGIS Pro 3.6+</p>
+  <p>Add-In académico de terceros. No afiliado a Esri ni a sus subsidiarias. &nbsp;·&nbsp; © 2026</p>
+</footer>
+
+<script>
+  // Scroll con offset para compensar la barra superior fija
+  (function () {
+    var NAV_HEIGHT = 52;
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var id = this.getAttribute('href').slice(1);
+        if (!id) return;
+        var target = document.getElementById(id);
+        if (!target) return;
+        e.preventDefault();
+        var top = target.getBoundingClientRect().top + window.pageYOffset - NAV_HEIGHT - 10;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+        history.pushState(null, '', '#' + id);
+      });
+    });
+
+    // Resaltar ancla activa en el sidebar al hacer scroll (solo enlaces internos)
+    var sideLinks = document.querySelectorAll('.sidebar-toc a.anchor-link');
+    var sections  = Array.from(document.querySelectorAll('section[id], h2[id], h3[id]'));
+
+    function onScroll() {
+      var scrollY = window.pageYOffset + NAV_HEIGHT + 20;
+      var current = '';
+      sections.forEach(function (sec) {
+        if (sec.offsetTop <= scrollY) current = sec.id;
+      });
+      sideLinks.forEach(function (link) {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+      });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+</script>
+
+</body>
+</html>
