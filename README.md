@@ -6,7 +6,7 @@ Desarrollado como trabajo de grado de la Especialización en Sistemas de Informa
 
 ## Documentación
 
-La documentación completa está disponible en: **(https://github.com/LauraCortesS/MapTrace)**
+La documentación completa está disponible en: **https://github.com/LauraCortesS/MapTrace**
 
 ## Requisitos
 
